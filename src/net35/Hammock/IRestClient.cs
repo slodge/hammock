@@ -32,9 +32,9 @@ namespace Hammock
 
 #if NET40
         IAsyncResult BeginRequestDynamic();
-        IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<DynamicObject> callback);
-        IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<DynamicObject> callback, object userState);
-        RestResponse<T> EndRequestDynamic<T>(IAsyncResult result) where T : DynamicObject;
+        IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<dynamic> callback);
+        IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<dynamic> callback, object userState);
+        RestResponse<dynamic> EndRequestDynamic(IAsyncResult result);
 #endif
 
         IAsyncResult BeginRequest(RestRequest request);

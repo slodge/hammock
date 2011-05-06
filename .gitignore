@@ -1,0 +1,9 @@
+*.pdb
+*.suo
+*.user
+bin/
+obj/
+bin/
+Bin/
+ClientBin/
+_ReSharper.Hammock/

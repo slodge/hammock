@@ -103,7 +103,7 @@ namespace Hammock
         {
             var query = RequestImpl(request);
 
-            dynamic response = BuildResponseFromResultDynamic<DynamicObject>(request, query);
+            dynamic response = BuildResponseFromResultDynamic(request, query);
 
             return response;
         }
@@ -626,12 +626,12 @@ namespace Hammock
         }
         
 #if NET40
-        public virtual IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<DynamicObject> callback)
+        public virtual IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<dynamic> callback)
         {
             return BeginRequestImplDynamic(request, callback, null, null, false /* isInternal */, null);
         }
         
-        public virtual IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<DynamicObject> callback, object userState)
+        public virtual IAsyncResult BeginRequestDynamic(RestRequest request, RestCallback<dynamic> callback, object userState)
         {
             return BeginRequestImplDynamic(request, callback, null, null, false /* isInternal */, userState);
         }
@@ -756,14 +756,14 @@ namespace Hammock
         }
 
 #if NET40
-        public virtual RestResponse<T> EndRequestDynamic<T>(IAsyncResult result) where T : DynamicObject
+        public virtual RestResponse<dynamic> EndRequestDynamic(IAsyncResult result)
         {
 #if !Mono
-            var webResult = EndRequestImplDynamic<T>(result);
+            var webResult = EndRequestImplDynamic(result);
 #else
 			var webResult = EndRequestImplDynamic<T>(result, null);
 #endif
-            return webResult.AsyncState as RestResponse<T>;
+            return webResult.AsyncState as RestResponse<dynamic>;
         }
 #endif
 
@@ -875,9 +875,9 @@ namespace Hammock
 
 #if NET40
 #if !Mono 
-        private WebQueryAsyncResult EndRequestImplDynamic<T>(IAsyncResult result, TimeSpan? timeout = null) where T : DynamicObject
+        private WebQueryAsyncResult EndRequestImplDynamic(IAsyncResult result, TimeSpan? timeout = null)
 #else
-		private WebQueryAsyncResult EndRequestImplDynamic<T>(IAsyncResult result, TimeSpan? timeout) where T : DynamicObject
+		private WebQueryAsyncResult EndRequestImplDynamic(IAsyncResult result, TimeSpan? timeout)
 #endif
         {
             var webResult = result as WebQueryAsyncResult;
@@ -886,7 +886,7 @@ namespace Hammock
                 throw new InvalidOperationException("The IAsyncResult provided was not for this operation.");
             }
 
-            var tag = (Triplet<RestRequest, RestCallback<T>, object>) webResult.Tag;
+            var tag = (Triplet<RestRequest, RestCallback<dynamic>, object>) webResult.Tag;
 
             if (RequestExpectsMock(tag.First))
             {
@@ -1190,12 +1190,12 @@ namespace Hammock
 
 
 #if NET40
-        private IAsyncResult BeginRequestImplDynamic<T>(RestRequest request,
-                                                        RestCallback<T> callback,
+        private IAsyncResult BeginRequestImplDynamic(RestRequest request,
+                                                        RestCallback<dynamic> callback,
                                                         WebQuery query,
                                                         string url,
                                                         bool isInternal,
-                                                        object userState) where T : DynamicObject
+                                                        object userState)
         {
             request = request ?? new RestRequest();
             if (!isInternal)
@@ -1728,12 +1728,12 @@ namespace Hammock
 #if !WindowsPhone
 
 #if NET40
-        private void CompleteWithQueryDynamic<T>(WebQuery query,
+        private void CompleteWithQueryDynamic(WebQuery query,
                                                  RestRequest request,
-                                                 RestCallback<T> callback,
-                                                 WebQueryAsyncResult result) where T : DynamicObject
+                                                 RestCallback<dynamic> callback,
+                                                 WebQueryAsyncResult result)
         {
-            var response = BuildResponseFromResultDynamic<T>(request, query);
+            var response = BuildResponseFromResultDynamic(request, query);
 
             CompleteWithQuery(request, query, callback, response, result);
         }
@@ -2449,11 +2449,11 @@ namespace Hammock
         }
 
 #if NET40
-        private RestResponse<T> BuildResponseFromResultDynamic<T>(RestBase request, WebQuery query) where T : DynamicObject
+        private RestResponse<dynamic> BuildResponseFromResultDynamic(RestBase request, WebQuery query)
         {
             request = request ?? new RestRequest();
             var result = query.Result;
-            var response = BuildBaseResponse<T>(result);
+            var response = BuildBaseResponse<dynamic>(result);
 
             DeserializeEntityBodyDynamic(request, response);
             response.Tag = GetTag(request);
@@ -2552,7 +2552,7 @@ namespace Hammock
         }
 
 #if NET40
-        private void DeserializeEntityBodyDynamic<T>(RestBase request, RestResponse<T> response) where T : DynamicObject
+        private void DeserializeEntityBodyDynamic(RestBase request, RestResponse<dynamic> response)
         {
             var deserializer = request.Deserializer ?? Deserializer ?? new DefaultJsonSerializer() ;
             if (response.ContentStream == null)

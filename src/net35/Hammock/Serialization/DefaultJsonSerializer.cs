@@ -20,7 +20,7 @@ namespace Hammock.Serialization
         }
 
 #if NET40
-        public dynamic DeserializeDynamic<T>(RestResponse<T> response) where T : DynamicObject
+        public dynamic DeserializeDynamic(RestResponse<dynamic> response)
         {
             var result = JsonParser.Deserialize(response.Content);
             return result;
