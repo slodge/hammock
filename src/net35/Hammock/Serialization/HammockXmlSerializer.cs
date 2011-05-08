@@ -95,7 +95,7 @@ namespace Hammock.Serialization
         }
 
 #if NET40
-        public virtual dynamic DeserializeDynamic<T>(RestResponse<T> response) where T : DynamicObject
+        public virtual dynamic DeserializeDynamic(RestResponse<dynamic> response)
         {
             var result = Deserialize(response);
             return result;
