@@ -143,6 +143,7 @@ namespace Hammock
         {
             Uri uri;
             WebQuery query = null;
+            request = request ?? new RestRequest();
 
             var retryPolicy = GetRetryPolicy(request);
             if (_firstTry)

@@ -95,7 +95,6 @@
   <ItemGroup>
     <None Include="..\..\net35\Hammock.Tests\app.config">
       <Link>app.config</Link>
-      <SubType>Designer</SubType>
     </None>
     <None Include="..\..\net35\Hammock.Tests\app.config.example">
       <Link>app.config.example</Link>
