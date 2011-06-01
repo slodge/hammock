@@ -11,7 +11,7 @@ namespace Hammock.Tests.Serialization
         public void Can_deserialize_to_dynamic_collection()
         {
             var serializer = new DefaultJsonSerializer();
-            var response = new RestResponse<JsonObject>();
+            var response = new RestResponse<dynamic>();
             response.SetContent(DoubleInput);
             var proxy = serializer.DeserializeDynamic(response);
             Assert.IsNotNull(proxy);
@@ -21,7 +21,7 @@ namespace Hammock.Tests.Serialization
         public void Can_deserialize_to_dynamic_single()
         {
             var serializer = new DefaultJsonSerializer();
-            var response = new RestResponse<JsonObject>();
+            var response = new RestResponse<dynamic>();
             response.SetContent(SingleInput);
             var proxy = serializer.DeserializeDynamic(response);
             Assert.IsNotNull(proxy);
@@ -35,7 +35,7 @@ namespace Hammock.Tests.Serialization
             foreach(var file in files)
             {
                 var json = File.ReadAllText(file);
-                var response = new RestResponse<JsonObject>();
+                var response = new RestResponse<dynamic>();
                 response.SetContent(json);
 
                 var proxy = serializer.DeserializeDynamic(response);

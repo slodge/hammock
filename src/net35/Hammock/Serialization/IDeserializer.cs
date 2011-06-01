@@ -10,7 +10,7 @@ namespace Hammock.Serialization
         object Deserialize(RestResponse response, Type type);
         T Deserialize<T>(RestResponse<T> response);
 #if NET40
-        dynamic DeserializeDynamic<T>(RestResponse<T> response) where T : DynamicObject;
+        dynamic DeserializeDynamic(RestResponse<dynamic> response);
 #endif
     }
 }
