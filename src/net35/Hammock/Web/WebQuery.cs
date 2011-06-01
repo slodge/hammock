@@ -640,12 +640,13 @@ namespace Hammock.Web
         [Conditional("TRACE")]
         private void TraceHeaders(WebRequest request)
         {
-            foreach (var trace in request.Headers.AllKeys.Select(key => String.Concat(key, ": ", request.Headers[key])))
-            {
-                Trace.WriteLine(trace);
-            }
+            var restricted = _restrictedHeaders.AllKeys.Select(key => String.Concat(key, ": ", request.Headers[key]));
+            var remaining = request.Headers.AllKeys.Except(_restrictedHeaders.AllKeys).Select(key => String.Concat(key, ": ", request.Headers[key]));
+            var all = restricted.ToList();
+            all.AddRange(remaining);
+            all.Sort();
 
-            foreach (var trace in _restrictedHeaders.AllKeys.Select(key => String.Concat(key, ": ", request.Headers[key])))
+            foreach (var trace in all)
             {
                 Trace.WriteLine(trace);
             }
