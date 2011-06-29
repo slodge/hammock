@@ -12,15 +12,13 @@ namespace Hammock.Web
         private readonly string _password;
         private readonly string _username;
 
-        public BasicAuthWebQuery(IWebQueryInfo info, string username, string password) :
-            this(info)
+        public BasicAuthWebQuery(IWebQueryInfo info, string username, string password, bool enableTrace) : this(info, enableTrace)
         {
             _username = username;
             _password = password;
         }
 
-        public BasicAuthWebQuery(IWebQueryInfo info) :
-            base(info)
+        public BasicAuthWebQuery(IWebQueryInfo info, bool enableTrace) : base(info, enableTrace)
         {
 
         }

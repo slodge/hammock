@@ -21,10 +21,9 @@ namespace Hammock.Authentication.OAuth
     {
         public virtual string Realm { get; set; }
         public virtual OAuthParameterHandling ParameterHandling { get; private set; }
-        private bool _recalculate = false;
+        private bool _recalculate;
 
-        public OAuthWebQuery(OAuthWebQueryInfo info)
-            : base(info)
+        public OAuthWebQuery(OAuthWebQueryInfo info, bool enableTrace) : base(info, enableTrace)
         {
             Initialize(info);
         }
@@ -53,9 +52,7 @@ namespace Hammock.Authentication.OAuth
         {
             var content = PostProcessPostParameters(request, post.AsUri());
 #if TRACE
-            Trace.WriteLine(String.Concat(
-                "\r\n", content)
-                );            
+            Trace.WriteLineIf(TraceEnabled, string.Concat("\r\n", content));            
 #endif
 			return content;
         }
@@ -280,14 +277,11 @@ namespace Hammock.Authentication.OAuth
             Parameters.Sort((l, r) => l.Name.CompareTo(r.Name));
 
             var parameters = 0;
-            foreach (var parameter in Parameters.Where(parameter => 
-                                                       !parameter.Name.IsNullOrBlank() && 
-                                                       !parameter.Value.IsNullOrBlank() &&
-                                                        parameter.Name.StartsWith("oauth_")
-                                                       ))
+            var pairs = Parameters.Where(parameter => !parameter.Name.IsNullOrBlank() && !parameter.Value.IsNullOrBlank() && parameter.Name.StartsWith("oauth_")); 
+            foreach (var parameter in pairs)
             {
                 parameters++;
-                var format = parameters < Parameters.Count ? "{0}=\"{1}\"," : "{0}=\"{1}\"";
+                var format = parameters < pairs.Count() ? "{0}=\"{1}\"," : "{0}=\"{1}\"";
                 sb.Append(format.FormatWith(parameter.Name, parameter.Value));
             }
 

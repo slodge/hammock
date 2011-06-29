@@ -238,8 +238,8 @@ namespace Hammock.Web
                     };
 #if TRACE
                     // Just for cosmetic purposes
-                    Trace.WriteLine(String.Concat("RESPONSE: ", response.StatusCode));
-                    Trace.WriteLine("\r\n");
+                    Trace.WriteLineIf(TraceEnabled, string.Concat("RESPONSE: ", response.StatusCode));
+                    Trace.WriteLineIf(TraceEnabled, "\r\n");
 #endif
                     foreach(var postHandle in _postHandles)
                     {
@@ -791,7 +791,7 @@ namespace Hammock.Web
             var encoding = Encoding ?? new UTF8Encoding();
             if (post != null)
             {
-                Trace.WriteLine(encoding.GetString(post, 0, post.Length));
+                Trace.WriteLineIf(TraceEnabled, encoding.GetString(post, 0, post.Length));
             }
 #endif
         }

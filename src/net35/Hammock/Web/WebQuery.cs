@@ -107,16 +107,19 @@ namespace Hammock.Web
         }
 #endif
 
-        protected WebQuery() : this(null)
+        protected WebQuery(bool enableTrace) : this(null, enableTrace)
         {
 
         }
 
-        protected WebQuery(IWebQueryInfo info)
+        protected WebQuery(IWebQueryInfo info, bool enableTrace)
         {
+            TraceEnabled = enableTrace;
             SetQueryMeta(info);
             InitializeResult();
         }
+
+        protected bool TraceEnabled { get; private set; }
 
         private void SetQueryMeta(IWebQueryInfo info)
         {
@@ -192,8 +195,13 @@ namespace Hammock.Web
 
 #if !MonoTouch
 		[Conditional("TRACE")]
-        private static void TraceResponse(Uri uri, string version, System.Net.WebHeaderCollection headers, int statusCode, string statusDescription)
+        private void TraceResponse(Uri uri, string version, System.Net.WebHeaderCollection headers, int statusCode, string statusDescription)
         {
+            if(!TraceEnabled)
+            {
+                return;
+            }
+
             Trace.WriteLine(
                 String.Concat("\r\n--RESPONSE:", " ", uri)
                 );
@@ -294,9 +302,7 @@ namespace Hammock.Web
             var content = PostContent ?? encoding.GetBytes(post);
 
 #if TRACE
-            Trace.WriteLine(String.Concat(
-                "\r\n", content)
-                );            
+            Trace.WriteLineIf(TraceEnabled, string.Concat("\r\n", content));            
 #endif
 			return content;
         }
@@ -332,9 +338,7 @@ namespace Hammock.Web
 
                 request.ContentType = Entity.ContentType;
 #if TRACE
-                Trace.WriteLine(String.Concat(
-                    "\r\n", entity)
-                    );
+                Trace.WriteLineIf(TraceEnabled, string.Concat("\r\n", entity));
 #endif
                 
 #if !SILVERLIGHT 
@@ -640,6 +644,11 @@ namespace Hammock.Web
         [Conditional("TRACE")]
         private void TraceHeaders(WebRequest request)
         {
+            if (!TraceEnabled)
+            {
+                return;
+            }
+
             var restricted = _restrictedHeaders.AllKeys.Select(key => String.Concat(key, ": ", request.Headers[key]));
             var remaining = request.Headers.AllKeys.Except(_restrictedHeaders.AllKeys).Select(key => String.Concat(key, ": ", request.Headers[key]));
             var all = restricted.ToList();
@@ -682,7 +691,7 @@ namespace Hammock.Web
 #else
         private readonly IDictionary<string, Action<HttpWebRequest, string>> _restrictedHeaderActions
             = new Dictionary<string, Action<HttpWebRequest, string>>(StringComparer.OrdinalIgnoreCase) {
-                      { "Accept",            (r, v) => { /* Not supported here */ },
+                      { "Accept",            (r, v) => { /* Not supported here */ }},
                       { "Connection",        (r, v) => { /* Set by Silverlight */ }},           
                       { "Content-Length",    (r, v) => { /* Set by Silverlight */ }},
                       { "Content-Type",      (r, v) => r.ContentType = v },
@@ -1076,6 +1085,11 @@ namespace Hammock.Web
         [Conditional("TRACE")]
         protected void TraceRequest(WebRequest request)
         {
+            if (!TraceEnabled)
+            {
+                return;
+            }
+
             var version = request is HttpWebRequest ?
 #if SILVERLIGHT
                 "HTTP/v1.1" :
@@ -1120,7 +1134,7 @@ namespace Hammock.Web
 
 #if TRACE
                     var encoding = Encoding ?? new UTF8Encoding();
-                    Trace.WriteLine(encoding.GetString(post));
+                    Trace.WriteLineIf(TraceEnabled, encoding.GetString(post));
 #endif
 
                     // [DC] Avoid disposing until no longer needed to build results
@@ -1243,7 +1257,7 @@ namespace Hammock.Web
 #if TRACE
                 if(write)
                 {
-                    Trace.WriteLine(header);
+                    Trace.WriteLineIf(TraceEnabled, header);
                 }
 #endif
                 switch (parameter.Type)
@@ -1261,10 +1275,10 @@ namespace Hammock.Web
 #if TRACE
                             if (write)
                             {
-                                Trace.WriteLine(fileHeader);
-                                Trace.WriteLine(fileLine);
-                                Trace.WriteLine("");
-                                Trace.WriteLine("[FILE DATA]");
+                                Trace.WriteLineIf(TraceEnabled, fileHeader);
+                                Trace.WriteLineIf(TraceEnabled, fileLine);
+                                Trace.WriteLineIf(TraceEnabled, "");
+                                Trace.WriteLineIf(TraceEnabled, "[FILE DATA]");
                             }
 #endif
 
@@ -1321,9 +1335,9 @@ namespace Hammock.Web
 #if TRACE
                             if(write)
                             {
-                                Trace.WriteLine(fieldLine);
-                                Trace.WriteLine("");
-                                Trace.WriteLine(parameter.Value);
+                                Trace.WriteLineIf(TraceEnabled, fieldLine);
+                                Trace.WriteLineIf(TraceEnabled, "");
+                                Trace.WriteLineIf(TraceEnabled, parameter.Value);
                             }
 #endif
                             break;
@@ -1335,7 +1349,7 @@ namespace Hammock.Web
 #if TRACE
             if(write)
             {
-                Trace.WriteLine(footer);
+                Trace.WriteLineIf(TraceEnabled, footer);
             }
 #endif
             if(write)

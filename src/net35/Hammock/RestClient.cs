@@ -523,6 +523,12 @@ namespace Hammock
             return info;
         }
 
+        private bool GetTraceEnabled(RestBase request)
+        {
+            var info = request.TraceEnabled || TraceEnabled;
+            return info;
+        }
+
         private TimeSpan? GetTimeout(RestBase request)
         {
             return request.Timeout ?? Timeout;
@@ -1053,21 +1059,21 @@ namespace Hammock
             return parentResult;
         }
 
-        private static void TraceResponseWithMock(RestResponseBase restResponse)
+        private void TraceResponseWithMock(RestResponseBase restResponse)
         {
 #if TRACE
-            Trace.WriteLine(String.Concat(
-                "RESPONSE: ", restResponse.StatusCode, " ", restResponse.StatusDescription)
-                );
+            if(!TraceEnabled)
+            {
+                return;
+            }
+
+            Trace.WriteLine(string.Concat("RESPONSE: ", restResponse.StatusCode, " ", restResponse.StatusDescription));
             Trace.WriteLineIf(restResponse.Headers.AllKeys.Count() > 0, "HEADERS:");
-            foreach (var trace in restResponse.Headers.AllKeys.Select(
-                key => String.Concat("\t", key, ": ", restResponse.Headers[key])))
+            foreach (var trace in restResponse.Headers.AllKeys.Select(key => string.Concat("\t", key, ": ", restResponse.Headers[key])))
             {
                 Trace.WriteLine(trace);
             }
-            Trace.WriteLine(String.Concat(
-                "\r\n", restResponse.Content)
-                );
+            Trace.WriteLine(string.Concat("\r\n", restResponse.Content));
 #endif
         }
 
@@ -2653,12 +2659,13 @@ namespace Hammock
             var method = GetWebMethod(request);
             var credentials = GetWebCredentials(request);
             var info = GetInfo(request);
+            var traceEnabled = GetTraceEnabled(request);
 
             // [DC]: UserAgent is set via Info
             // [DC]: Request credentials trump client credentials
             var query = credentials != null
-                            ? credentials.GetQueryFor(uri.ToString(), request, info, method)
-                            : new BasicAuthWebQuery(info);
+                            ? credentials.GetQueryFor(uri.ToString(), request, info, method, traceEnabled)
+                            : new BasicAuthWebQuery(info, traceEnabled);
 
             query.PostProgress += QueryPostProgress;
 

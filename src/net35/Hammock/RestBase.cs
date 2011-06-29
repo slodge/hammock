@@ -64,6 +64,7 @@ namespace Hammock
         protected virtual internal WebParameterCollection Parameters { get; set; }
         protected virtual internal WebParameterCollection Cookies { get; set; }
         protected virtual internal ICollection<HttpPostParameter> PostParameters { get; set; }
+        protected internal virtual bool TraceEnabled { get; set; }
         
         protected virtual internal byte[] PostContent
         {
