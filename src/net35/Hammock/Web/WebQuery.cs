@@ -673,11 +673,11 @@ namespace Hammock.Web
                       {"Expect", (r, v) => r.Expect = v},
                       {"Date", (r, v) => { /* Set by system */ }},
                       {"Host", (r, v) => { /* Set by system */ }},
-                      {"RetryIf-Modified-Since", (r, v) => r.IfModifiedSince = Convert.ToDateTime(v)},
+                      {"If-Modified-Since", (r, v) => r.IfModifiedSince = Convert.ToDateTime(v)},
                       {"Range", (r, v) => { throw new NotSupportedException( /* r.AddRange() */); }},
                       {"Referer", (r, v) => r.Referer = v},
                       {"Transfer-Encoding", (r, v) => { r.TransferEncoding = v; r.SendChunked = true; }},
-                      {"User-Agent", (r, v) => r.UserAgent = v}
+                      {"User-Agent", (r, v) => r.UserAgent = v }
                   };
 #else
         private readonly IDictionary<string, Action<HttpWebRequest, string>> _restrictedHeaderActions
