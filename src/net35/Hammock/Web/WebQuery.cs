@@ -228,7 +228,7 @@ namespace Hammock.Web
 #if !SILVERLIGHT
         protected virtual void SetWebProxy(WebRequest request)
         {
-#if !Smartphone
+#if !Smartphone && !NETCF
             var proxyUriBuilder = new UriBuilder(Proxy);
             request.Proxy = new WebProxy(proxyUriBuilder.Host,
                                          proxyUriBuilder.Port);
@@ -239,7 +239,7 @@ namespace Hammock.Web
                                                                                              proxyUriBuilder.Password);
             }
 #else
-            var uri = new Uri(Proxy);
+          var uri = new Uri(Proxy);
             request.Proxy = new WebProxy(uri.Host, uri.Port);
             var userParts = uri.UserInfo.Split(new[] { ':' }).Where(ui => !ui.IsNullOrBlank()).ToArray();
             if (userParts.Length == 2)
@@ -440,13 +440,13 @@ namespace Hammock.Web
 #if !SILVERLIGHT
             if (ServicePoint != null)
             {
-#if !Smartphone
+#if !Smartphone  && !NETCF
                 request.ServicePoint.ConnectionLeaseTimeout = ServicePoint.ConnectionLeaseTimeout;
                 request.ServicePoint.ReceiveBufferSize = ServicePoint.ReceiveBufferSize;
                 request.ServicePoint.UseNagleAlgorithm = ServicePoint.UseNagleAlgorithm;
                 request.ServicePoint.BindIPEndPointDelegate = ServicePoint.BindIPEndPointDelegate;
 #endif
-                request.ServicePoint.ConnectionLimit = ServicePoint.ConnectionLimit;
+              request.ServicePoint.ConnectionLimit = ServicePoint.ConnectionLimit;
                 request.ServicePoint.Expect100Continue = ServicePoint.Expect100Continue;
                 request.ServicePoint.MaxIdleTime = ServicePoint.MaxIdleTime;
             }
@@ -541,6 +541,7 @@ namespace Hammock.Web
 
         private void AppendCookies(HttpWebRequest request)
         {
+#if !NETCF
             request.CookieContainer = new CookieContainer();
 
             foreach(var cookie in Cookies.OfType<HttpCookieParameter>())
@@ -557,6 +558,7 @@ namespace Hammock.Web
                 }
 #endif
             }
+#endif
         }
 
         protected virtual void AppendHeaders(WebRequest request)
@@ -1134,7 +1136,11 @@ namespace Hammock.Web
 
 #if TRACE
                     var encoding = Encoding ?? new UTF8Encoding();
+#if NETCF
+                    Trace.WriteLineIf(TraceEnabled, encoding.GetString(post, 0, post.Length));
+#else
                     Trace.WriteLineIf(TraceEnabled, encoding.GetString(post));
+#endif
 #endif
 
                     // [DC] Avoid disposing until no longer needed to build results
