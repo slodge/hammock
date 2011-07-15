@@ -2290,9 +2290,6 @@ namespace Hammock
         private static object BuildRateLimitingTaskImpl(ITaskOptions taskOptions,
                                                         Action<bool> taskAction)
         {
-#if NETCF
-          throw new PlatformNotSupportedException("Rate limiting not supported for .Net Compact Framework");
-#else
             var innerType = taskOptions.GetDeclaredTypeForGeneric(typeof(ITaskOptions<>));
             var rateType = typeof(RateLimitingRule<>).MakeGenericType(innerType);
             var taskType = typeof(TimedTask<>).MakeGenericType(innerType);
@@ -2325,7 +2322,6 @@ namespace Hammock
                                             taskOptions.ContinueOnError,
                                             taskAction,
                                             taskRule);
-#endif
         }
 #endif
 
