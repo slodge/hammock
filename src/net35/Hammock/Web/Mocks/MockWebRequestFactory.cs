@@ -4,7 +4,9 @@ using System.Linq;
 using Hammock.Extensions;
 
 #if !SILVERLIGHT && !ClientProfiles && !MonoTouch
+#if !NETCF
 using System.Web;
+#endif
 using System.Collections.Specialized;
 #endif
 
@@ -36,10 +38,10 @@ namespace Hammock.Web.Mocks
 
         public WebRequest Create(Uri uri)
         {
-#if !SILVERLIGHT && !MonoTouch
+#if !SILVERLIGHT && !MonoTouch && !NETCF
             var query = HttpUtility.ParseQueryString(uri.Query);
 #else
-            var query = uri.Query.ParseQueryString();
+          var query = uri.Query.ParseQueryString();
 #endif
             var scheme = query[MockScheme];
             var statusCode = query[MockStatusCode];
@@ -51,10 +53,10 @@ namespace Hammock.Web.Mocks
 
             // Remove mocks parameters
             var queryString = new NameValueCollection();
-#if !SILVERLIGHT && !MonoTouch
+#if !SILVERLIGHT && !MonoTouch && !NETCF
             foreach(var key in query.AllKeys)
 #else
-            foreach(var key in query.Keys)
+            foreach (var key in query.Keys)
 #endif
             {
                 if(key.EqualsAny(

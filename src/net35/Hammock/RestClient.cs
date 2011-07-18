@@ -342,7 +342,7 @@ namespace Hammock
                 }
 
                 // Call the function to find the retry evaluator
-#if !Smartphone
+#if !Smartphone && !NETCF
                 var t = func.DynamicInvoke(null);
 #else
                 var del = func.GetInvocationList().FirstOrDefault();
@@ -738,10 +738,10 @@ namespace Hammock
 #if !WindowsPhone
         public virtual RestResponse EndRequest(IAsyncResult result)
         {
-#if !Mono
+#if !Mono && !NETCF
             var webResult = EndRequestImpl(result);
 #else
-			var webResult = EndRequestImpl(result, null);
+          var webResult = EndRequestImpl(result, null);
 #endif
             return webResult.AsyncState as RestResponse;
         }
@@ -754,10 +754,10 @@ namespace Hammock
 
         public virtual RestResponse<T> EndRequest<T>(IAsyncResult result)
         {
-#if !Mono
+#if !Mono && !NETCF
             var webResult = EndRequestImpl<T>(result);
 #else
-			var webResult = EndRequestImpl<T>(result, null);
+          var webResult = EndRequestImpl<T>(result, null);
 #endif
             return webResult.AsyncState as RestResponse<T>;
         }
@@ -780,7 +780,7 @@ namespace Hammock
             return webResult.AsyncState as RestResponse<T>;
         }
 
-#if !Mono
+#if !Mono && !NETCF
         private WebQueryAsyncResult EndRequestImpl(IAsyncResult result, TimeSpan? timeout = null)
 		{
 #else
@@ -820,7 +820,12 @@ namespace Hammock
             {
                 if(timeout.HasValue)
                 {
+#if NETCF
+                  var millisecondsTimeout = Convert.ToInt32(timeout.Value.TotalMilliseconds);
+                  webResult.AsyncWaitHandle.WaitOne(millisecondsTimeout, false);
+#else
                     webResult.AsyncWaitHandle.WaitOne(timeout.Value);
+#endif
                 }
                 else
                 {
@@ -828,12 +833,12 @@ namespace Hammock
                 }
             }
             return webResult;
-        }
+    }
 
-#if !Mono
+#if !Mono && !NETCF
         private WebQueryAsyncResult EndRequestImpl<T>(IAsyncResult result, TimeSpan? timeout = null)
 #else
-		private WebQueryAsyncResult EndRequestImpl<T>(IAsyncResult result, TimeSpan? timeout)
+    private WebQueryAsyncResult EndRequestImpl<T>(IAsyncResult result, TimeSpan? timeout)
 #endif
         {
             var webResult = result as WebQueryAsyncResult;
@@ -869,7 +874,12 @@ namespace Hammock
             {
                 if(timeout.HasValue)
                 {
+#if NETCF
+                  var millisecondsTimeout = Convert.ToInt32(timeout.Value.TotalMilliseconds);
+                  webResult.AsyncWaitHandle.WaitOne(millisecondsTimeout, false);
+#else
                     webResult.AsyncWaitHandle.WaitOne(timeout.Value);
+#endif
                 }
                 else
                 {
@@ -2503,7 +2513,7 @@ namespace Hammock
                     }
 #endif
 
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !NETCF
                     if(result.WebResponse is HttpWebResponse)
                     {
                         var cookies = (result.WebResponse as HttpWebResponse).Cookies;

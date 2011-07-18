@@ -181,7 +181,7 @@ namespace Hammock.Web
                 return;
             }
 
-#if !Smartphone && !WindowsPhone && !SL4
+#if !Smartphone && !WindowsPhone && !SL4 && !NETCF
             // [DC] request.Timeout is ignored with async
             var timeout = RequestTimeout != null ? 
                 (int)RequestTimeout.Value.TotalMilliseconds

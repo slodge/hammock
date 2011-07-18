@@ -54,7 +54,7 @@ namespace Hammock.Serialization
                     }
                 }
 
-#if !Smartphone
+#if !Smartphone && !NETCF
                 result = ContentEncoding.GetString(stream.ToArray());
 #else
                 result = ContentEncoding.GetString(stream.ToArray(), 0, (int)stream.Length);
