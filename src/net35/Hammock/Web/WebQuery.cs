@@ -63,7 +63,6 @@ namespace Hammock.Web
         public virtual bool HasElevatedPermissions { get; set; }
 
         // [DC]: Headers to use when access isn't direct
-        public virtual string SilverlightAuthorizationHeader { get; set; }
         public virtual string SilverlightUserAgentHeader { get; set; }
         public virtual string SilverlightAcceptEncodingHeader { get; set; }        
 #endif
@@ -595,19 +594,6 @@ namespace Hammock.Web
                         else
                         {
                             request.Headers[SilverlightAcceptEncodingHeader ?? "X-Accept-Encoding"] = header.Value;
-                        }
-                        continue;
-                    }
-
-                    if(header.Key.EqualsIgnoreCase("Authorization"))
-                    {
-                        if (HasElevatedPermissions)
-                        {
-                            request.Headers[header.Key] = AuthorizationHeader;
-                        }
-                        else
-                        {
-                            request.Headers[SilverlightAuthorizationHeader ?? "X-Authorization"] = AuthorizationHeader;
                         }
                         continue;
                     }

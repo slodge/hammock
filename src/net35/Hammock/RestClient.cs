@@ -69,11 +69,6 @@ namespace Hammock
         public virtual string SilverlightAcceptEncodingHeader { get; set;}
         
         /// <summary>
-        /// Used to set the name of the "Authorization" header used by your Silverlight proxy.
-        /// </summary>
-        public virtual string SilverlightAuthorizationHeader { get; set;}
-
-        /// <summary>
         /// Used to set the name of the "User-Agent" header used by your Silverlight proxy.
         /// </summary>
         public virtual string SilverlightUserAgentHeader { get; set;}
@@ -2676,7 +2671,6 @@ namespace Hammock
 #if SILVERLIGHT
             query.HasElevatedPermissions = HasElevatedPermissions;
             query.SilverlightAcceptEncodingHeader = SilverlightAcceptEncodingHeader;
-            query.SilverlightAuthorizationHeader = SilverlightAuthorizationHeader;
             query.SilverlightUserAgentHeader = SilverlightUserAgentHeader;
 #endif
             return query;
