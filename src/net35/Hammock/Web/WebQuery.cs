@@ -812,7 +812,17 @@ namespace Hammock.Web
                 return;
             }
 
-            WebResponse = exception.Response;
+            var response = exception.Response;
+#if SILVERLIGHT
+            if (DecompressionMethods == Silverlight.Compat.DecompressionMethods.GZip ||
+                DecompressionMethods == Silverlight.Compat.DecompressionMethods.Deflate ||
+                DecompressionMethods == (Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate)
+                )
+            {
+                response = new GzipHttpWebResponse((HttpWebResponse)response);
+            }
+#endif
+            WebResponse = response;
             var stream = WebResponse.GetResponseStream();
 
             if (stream == null)
