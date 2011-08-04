@@ -2540,7 +2540,7 @@ namespace Hammock
         private void DeserializeEntityBody(RestRequest request, RestResponse response)
         {
             var deserializer = request.Deserializer ?? Deserializer;
-            if (deserializer == null || request.ResponseEntityType == null || response.ContentStream == null)
+            if (deserializer == null || request.ResponseEntityType == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
@@ -2550,7 +2550,7 @@ namespace Hammock
         private void DeserializeEntityBody<T>(RestBase request, RestResponse<T> response)
         {
             var deserializer = request.Deserializer ?? Deserializer;
-            if (deserializer == null || response.ContentStream == null)
+            if (deserializer == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
@@ -2561,7 +2561,7 @@ namespace Hammock
         private void DeserializeEntityBodyDynamic(RestBase request, RestResponse<dynamic> response)
         {
             var deserializer = request.Deserializer ?? Deserializer ?? new DefaultJsonSerializer() ;
-            if (response.ContentStream == null)
+            if (response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
