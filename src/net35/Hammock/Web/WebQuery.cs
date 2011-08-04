@@ -64,7 +64,6 @@ namespace Hammock.Web
 
         // [DC]: Headers to use when access isn't direct
         public virtual string SilverlightAuthorizationHeader { get; set; }
-        public virtual string SilverlightMethodHeader { get; set; }
         public virtual string SilverlightUserAgentHeader { get; set; }
         public virtual string SilverlightAcceptEncodingHeader { get; set; }        
 #endif
@@ -382,20 +381,7 @@ namespace Hammock.Web
 
         private void SetMethod(string method, WebRequest request)
         {
-#if SILVERLIGHT && !WindowsPhone
-            var httpMethod = method.ToUpper();
-            if (HasElevatedPermissions)
-            {
-                request.Method = httpMethod;
-            }
-            else
-            {
-                request.Method = "POST";
-                request.Headers[SilverlightMethodHeader ?? "X-Method"] = httpMethod;
-            }
-#else
             request.Method = method.ToUpper();
-#endif    
         }
 
         private void HandleRequestMeta(WebRequest request)
