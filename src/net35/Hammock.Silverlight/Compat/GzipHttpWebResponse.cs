@@ -45,11 +45,12 @@ namespace Hammock.Silverlight.Compat
             var responseStream = _response.GetResponseStream();
 
 #if !WindowsPhone
-            if (_response.Headers["Accept-Encoding"] != null && _response.Headers["Accept-Encoding"].Contains("gzip"))
+            var contentEncoding = _response.Headers["Content-Encoding"];
+            if (contentEncoding != null && contentEncoding.Contains("gzip"))
             {
                 compressed = new GZipInputStream(responseStream);
             }
-            else if (_response.Headers["Accept-Encoding"] != null && _response.Headers["Accept-Encoding"].Contains("deflate"))
+            else if (contentEncoding != null && contentEncoding.Contains("deflate"))
             {
                 compressed = new ZipInputStream(responseStream);
             }
