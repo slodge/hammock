@@ -664,7 +664,7 @@ namespace Hammock.Web
 #else
         private readonly IDictionary<string, Action<HttpWebRequest, string>> _restrictedHeaderActions
             = new Dictionary<string, Action<HttpWebRequest, string>>(StringComparer.OrdinalIgnoreCase) {
-                      { "Accept",            (r, v) => { /* Not supported here */ }},
+                      { "Accept",            (r, v) => r.Accept = v },
                       { "Connection",        (r, v) => { /* Set by Silverlight */ }},           
                       { "Content-Length",    (r, v) => { /* Set by Silverlight */ }},
                       { "Content-Type",      (r, v) => r.ContentType = v },
