@@ -459,21 +459,6 @@ namespace Hammock.Web
                 if (HasElevatedPermissions)
                 {
 #endif
-                /* SL3 profile prohibits setting Accept-Encoding :(
-                switch (decompressionMethods)
-                {
-                    case Silverlight.Compat.DecompressionMethods.GZip:
-                        request.Headers[AcceptEncodingHeader] = "gzip";
-                        break;
-                    case Silverlight.Compat.DecompressionMethods.Deflate:
-                        request.Headers[AcceptEncodingHeader] = "deflate";
-                        break;
-                    case Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate:
-                        request.Headers[AcceptEncodingHeader] = "gzip,deflate";
-                        break;
-                }
-                */
-
                 switch (decompressionMethods)
                 {
                     case Silverlight.Compat.DecompressionMethods.GZip:
@@ -582,19 +567,6 @@ namespace Hammock.Web
                     {
                         // [DC]: User-Agent is still restricted in elevated mode
                         request.Headers[SilverlightUserAgentHeader ?? "X-User-Agent"] = UserAgent;
-                        continue;
-                    }
-
-                    if(header.Key.EqualsIgnoreCase(AcceptEncodingHeader))
-                    {
-                        if (HasElevatedPermissions)
-                        {
-                            request.Headers[header.Key] = header.Value;
-                        }
-                        else
-                        {
-                            request.Headers[SilverlightAcceptEncodingHeader ?? "X-Accept-Encoding"] = header.Value;
-                        }
                         continue;
                     }
 #endif
