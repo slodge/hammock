@@ -468,7 +468,6 @@ namespace Hammock.Web
 
 #if !SILVERLIGHT && !WindowsPhone
                 request.AutomaticDecompression = decompressionMethods;
-                request.Headers.Add(AcceptEncodingHeader, "gzip,deflate");
 #else
 
 #if !WindowsPhone
