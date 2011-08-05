@@ -63,8 +63,6 @@ namespace Hammock.Web
         public virtual bool HasElevatedPermissions { get; set; }
 
         // [DC]: Headers to use when access isn't direct
-        public virtual string SilverlightAuthorizationHeader { get; set; }
-        public virtual string SilverlightMethodHeader { get; set; }
         public virtual string SilverlightUserAgentHeader { get; set; }
         public virtual string SilverlightAcceptEncodingHeader { get; set; }        
 #endif
@@ -382,20 +380,7 @@ namespace Hammock.Web
 
         private void SetMethod(string method, WebRequest request)
         {
-#if SILVERLIGHT && !WindowsPhone
-            var httpMethod = method.ToUpper();
-            if (HasElevatedPermissions)
-            {
-                request.Method = httpMethod;
-            }
-            else
-            {
-                request.Method = "POST";
-                request.Headers[SilverlightMethodHeader ?? "X-Method"] = httpMethod;
-            }
-#else
             request.Method = method.ToUpper();
-#endif    
         }
 
         private void HandleRequestMeta(WebRequest request)
@@ -468,28 +453,12 @@ namespace Hammock.Web
 
 #if !SILVERLIGHT && !WindowsPhone
                 request.AutomaticDecompression = decompressionMethods;
-                request.Headers.Add(AcceptEncodingHeader, "gzip,deflate");
 #else
 
 #if !WindowsPhone
                 if (HasElevatedPermissions)
                 {
 #endif
-                /* SL3 profile prohibits setting Accept-Encoding :(
-                switch (decompressionMethods)
-                {
-                    case Silverlight.Compat.DecompressionMethods.GZip:
-                        request.Headers[AcceptEncodingHeader] = "gzip";
-                        break;
-                    case Silverlight.Compat.DecompressionMethods.Deflate:
-                        request.Headers[AcceptEncodingHeader] = "deflate";
-                        break;
-                    case Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate:
-                        request.Headers[AcceptEncodingHeader] = "gzip,deflate";
-                        break;
-                }
-                */
-
                 switch (decompressionMethods)
                 {
                     case Silverlight.Compat.DecompressionMethods.GZip:
@@ -600,32 +569,6 @@ namespace Hammock.Web
                         request.Headers[SilverlightUserAgentHeader ?? "X-User-Agent"] = UserAgent;
                         continue;
                     }
-
-                    if(header.Key.EqualsIgnoreCase(AcceptEncodingHeader))
-                    {
-                        if (HasElevatedPermissions)
-                        {
-                            request.Headers[header.Key] = header.Value;
-                        }
-                        else
-                        {
-                            request.Headers[SilverlightAcceptEncodingHeader ?? "X-Accept-Encoding"] = header.Value;
-                        }
-                        continue;
-                    }
-
-                    if(header.Key.EqualsIgnoreCase("Authorization"))
-                    {
-                        if (HasElevatedPermissions)
-                        {
-                            request.Headers[header.Key] = AuthorizationHeader;
-                        }
-                        else
-                        {
-                            request.Headers[SilverlightAuthorizationHeader ?? "X-Authorization"] = AuthorizationHeader;
-                        }
-                        continue;
-                    }
 #endif
                         _restrictedHeaderActions[header.Key].Invoke((HttpWebRequest) request, header.Value);
                         _restrictedHeaders.Add(header.Key, header.Value);
@@ -693,7 +636,7 @@ namespace Hammock.Web
 #else
         private readonly IDictionary<string, Action<HttpWebRequest, string>> _restrictedHeaderActions
             = new Dictionary<string, Action<HttpWebRequest, string>>(StringComparer.OrdinalIgnoreCase) {
-                      { "Accept",            (r, v) => { /* Not supported here */ }},
+                      { "Accept",            (r, v) => r.Accept = v },
                       { "Connection",        (r, v) => { /* Set by Silverlight */ }},           
                       { "Content-Length",    (r, v) => { /* Set by Silverlight */ }},
                       { "Content-Type",      (r, v) => r.ContentType = v },
@@ -841,7 +784,17 @@ namespace Hammock.Web
                 return;
             }
 
-            WebResponse = exception.Response;
+            var response = exception.Response;
+#if SILVERLIGHT
+            if (DecompressionMethods == Silverlight.Compat.DecompressionMethods.GZip ||
+                DecompressionMethods == Silverlight.Compat.DecompressionMethods.Deflate ||
+                DecompressionMethods == (Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate)
+                )
+            {
+                response = new GzipHttpWebResponse((HttpWebResponse)response);
+            }
+#endif
+            WebResponse = response;
             var stream = WebResponse.GetResponseStream();
 
             if (stream == null)

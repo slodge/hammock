@@ -69,17 +69,6 @@ namespace Hammock
         public virtual string SilverlightAcceptEncodingHeader { get; set;}
         
         /// <summary>
-        /// Used to set the name of the "Authorization" header used by your Silverlight proxy.
-        /// </summary>
-        public virtual string SilverlightAuthorizationHeader { get; set;}
-
-        /// <summary>
-        /// Used to set the name of the "Method" header used by your Silverlight proxy.
-        /// This passes the correct HTTP method to the header as all proxy calls use POST.
-        /// </summary>
-        public virtual string SilverlightMethodHeader { get; set; }
-
-        /// <summary>
         /// Used to set the name of the "User-Agent" header used by your Silverlight proxy.
         /// </summary>
         public virtual string SilverlightUserAgentHeader { get; set;}
@@ -2551,7 +2540,7 @@ namespace Hammock
         private void DeserializeEntityBody(RestRequest request, RestResponse response)
         {
             var deserializer = request.Deserializer ?? Deserializer;
-            if (deserializer == null || request.ResponseEntityType == null || response.ContentStream == null)
+            if (deserializer == null || request.ResponseEntityType == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
@@ -2561,7 +2550,7 @@ namespace Hammock
         private void DeserializeEntityBody<T>(RestBase request, RestResponse<T> response)
         {
             var deserializer = request.Deserializer ?? Deserializer;
-            if (deserializer == null || response.ContentStream == null)
+            if (deserializer == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
@@ -2572,7 +2561,7 @@ namespace Hammock
         private void DeserializeEntityBodyDynamic(RestBase request, RestResponse<dynamic> response)
         {
             var deserializer = request.Deserializer ?? Deserializer ?? new DefaultJsonSerializer() ;
-            if (response.ContentStream == null)
+            if (response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
                 return;
             }
@@ -2682,8 +2671,6 @@ namespace Hammock
 #if SILVERLIGHT
             query.HasElevatedPermissions = HasElevatedPermissions;
             query.SilverlightAcceptEncodingHeader = SilverlightAcceptEncodingHeader;
-            query.SilverlightAuthorizationHeader = SilverlightAuthorizationHeader;
-            query.SilverlightMethodHeader = SilverlightMethodHeader;
             query.SilverlightUserAgentHeader = SilverlightUserAgentHeader;
 #endif
             return query;

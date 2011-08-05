@@ -249,21 +249,7 @@ namespace Hammock.Authentication.OAuth
         
         protected override void SetAuthorizationHeader(WebRequest request, string header)
         {
-            var authorization = BuildAuthorizationHeader();
-            AuthorizationHeader = authorization;
-
-#if !SILVERLIGHT || WindowsPhone
-            request.Headers[header] = AuthorizationHeader;
-#else
-            if (HasElevatedPermissions)
-            {
-                request.Headers[header] = authorization;
-            }
-            else
-            {
-                request.Headers[SilverlightAuthorizationHeader ?? "X-Authorization"] = AuthorizationHeader;
-            }
-#endif
+            request.Headers[header] = BuildAuthorizationHeader();
         }
 
         private string BuildAuthorizationHeader()

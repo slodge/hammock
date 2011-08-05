@@ -41,20 +41,7 @@ namespace Hammock.Web
             }
 
             var credentials = GetAuthorizationHeader();
-            AuthorizationHeader = header;
-
-#if !SILVERLIGHT || WindowsPhone
             request.Headers[header] = credentials;
-#else
-            if (HasElevatedPermissions)
-            {
-                request.Headers[header] = credentials;
-            }
-            else
-            {
-                request.Headers[SilverlightAuthorizationHeader] = AuthorizationHeader;
-            }
-#endif
         }
 
         private string GetAuthorizationHeader()
