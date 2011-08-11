@@ -2442,7 +2442,7 @@ namespace Hammock
             return response;
         }
 
-        private RestResponse<T> BuildResponseFromResult<T>(RestBase request, WebQuery query)
+        private RestResponse<T> BuildResponseFromResult<T>(RestRequest request, WebQuery query)
         {
             request = request ?? new RestRequest();
             var result = query.Result;
@@ -2455,7 +2455,7 @@ namespace Hammock
         }
 
 #if NET40
-        private RestResponse<dynamic> BuildResponseFromResultDynamic(RestBase request, WebQuery query)
+        private RestResponse<dynamic> BuildResponseFromResultDynamic(RestRequest request, WebQuery query)
         {
             request = request ?? new RestRequest();
             var result = query.Result;
@@ -2537,35 +2537,53 @@ namespace Hammock
             return response;
         }
 
-        private void DeserializeEntityBody(RestRequest request, RestResponse response)
+        private bool ShouldDeserializeEntityBody(RestRequest request, RestResponseBase response, out IDeserializer deserializer)
         {
-            var deserializer = request.Deserializer ?? Deserializer;
-            if (deserializer == null || request.ResponseEntityType == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
-            {
-                return;
-            }
-            response.ContentEntity = deserializer.Deserialize(response, request.ResponseEntityType);
-        }
-
-        private void DeserializeEntityBody<T>(RestBase request, RestResponse<T> response)
-        {
-            var deserializer = request.Deserializer ?? Deserializer;
+            deserializer = request.Deserializer ?? Deserializer;
             if (deserializer == null || response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
             {
-                return;
+                return false;
             }
-            response.ContentEntity = deserializer.Deserialize(response);
+            if (response.InnerException != null)
+            {
+                Type errorResponseEntityType;
+                var getErrorResponseEntityType = request.GetErrorResponseEntityType ?? GetErrorResponseEntityType;
+                if (getErrorResponseEntityType != null && (errorResponseEntityType = getErrorResponseEntityType(request, response)) != null)
+                {
+                    response.ErrorContentEntity = deserializer.Deserialize(response, errorResponseEntityType);
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        private void DeserializeEntityBody(RestRequest request, RestResponse response)
+        {
+            IDeserializer deserializer;
+            if (ShouldDeserializeEntityBody(request, response, out deserializer) && request.ResponseEntityType != null)
+            {
+                response.ContentEntity = deserializer.Deserialize(response, request.ResponseEntityType);
+            }
+        }
+
+        private void DeserializeEntityBody<T>(RestRequest request, RestResponse<T> response)
+        {
+            IDeserializer deserializer;
+            if (ShouldDeserializeEntityBody(request, response, out deserializer))
+            {
+                response.ContentEntity = deserializer.Deserialize<T>(response);
+            }
         }
 
 #if NET40
-        private void DeserializeEntityBodyDynamic(RestBase request, RestResponse<dynamic> response)
+        private void DeserializeEntityBodyDynamic(RestRequest request, RestResponse<dynamic> response)
         {
-            var deserializer = request.Deserializer ?? Deserializer ?? new DefaultJsonSerializer() ;
-            if (response.ContentStream == null || string.IsNullOrEmpty(response.ContentType))
+            IDeserializer deserializer;
+            if (ShouldDeserializeEntityBody(request, response, out deserializer))
             {
-                return;
+                response.ContentEntity = deserializer.DeserializeDynamic(response);
             }
-            response.ContentEntity = deserializer.DeserializeDynamic(response);
         }
 #endif
 

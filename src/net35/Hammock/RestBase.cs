@@ -82,6 +82,7 @@ namespace Hammock
             }
         }
 
+        public virtual Func<RestRequest, RestResponseBase, Type> GetErrorResponseEntityType { get; set; }
         public virtual string UserAgent { get; set; }
         public virtual WebMethod? Method { get; set; }
         public virtual IWebCredentials Credentials { get; set; }
