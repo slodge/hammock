@@ -55,6 +55,7 @@ namespace Hammock
             }
         }
 
+        public virtual object ErrorContentEntity { get; set; }
         public virtual Stream ContentStream { get; set; }
         public virtual WebResponse InnerResponse { get; set; }
         public virtual Exception InnerException { get; set; }
