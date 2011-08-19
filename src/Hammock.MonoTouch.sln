@@ -42,6 +42,6 @@ Global
 		$4.MessageStyle = $5
 		$5.LineAlign = 0
 		$4.inheritsSet = Mono
-		outputpath = ..\..\bin\mono
+		outputpath = ..\bin\mono
 	EndGlobalSection
 EndGlobal
