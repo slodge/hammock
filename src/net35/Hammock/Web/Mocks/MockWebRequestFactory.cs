@@ -14,13 +14,17 @@ using System.Collections.Specialized;
 using Hammock.Silverlight.Compat;
 #endif
 
-#if ClientProfiles || MonoTouch
+#if ClientProfiles
 using System.Collections.Specialized;
 using System.Compat.Web;
 #endif
 
 #if SL3 || SL4
 using System.Windows.Browser;
+#endif
+
+#if MonoTouch
+using System.Collections.Specialized;
 #endif
 
 namespace Hammock.Web.Mocks
