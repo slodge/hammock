@@ -145,7 +145,7 @@ namespace Hammock
             {
                 request = PrepareRequest(request, out uri, out query);
 
-                var url = uri.ToString();
+                var url = uri.AbsoluteUri;
 
                 if (RequestExpectsMock(request))
                 {
