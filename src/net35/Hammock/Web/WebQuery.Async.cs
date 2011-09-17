@@ -502,75 +502,71 @@ namespace Hammock.Web
                 var results = new List<string>();
                 var start = DateTime.UtcNow;
                 var bufferString = string.Empty;
+                var data = new byte[4096];
 
-                while (stream.CanRead)
+                try
                 {
-                    var data = new byte[4096];
-                    try
+                    int read;
+                    while (stream.CanRead && (read = stream.Read(data, 0, data.Length)) > 0)
                     {
-                        int read;
-                        while ((read = stream.Read(data, 0, data.Length)) > 0)
+                        var readString = Encoding.UTF8.GetString(data, 0, read);
+                        bufferString = ProcessBuffer(bufferString + readString);
+                        if (!_isStreaming)
                         {
-                            var readString = Encoding.UTF8.GetString(data, 0, read);
-                            bufferString = ProcessBuffer(bufferString + readString);
-                            if (!_isStreaming)
-                            {
-                                // [DC] Streaming was cancelled out of band
-                                EndStreaming(request);
-                                return;
-                            }
-
-                            if (readString.Equals(Environment.NewLine))
-                            {
-                                // Keep-Alive
-                                continue;
-                            }
-
-                            if (readString.Equals("<html>"))
-                            {
-                                // We're looking at a 401 or similar; construct error result?
-                                EndStreaming(request);
-                                return;
-                            }
-
-                            results.Add(readString);
-
-                            count++;
-                            if (count < resultCount)
-                            {
-                                // Result buffer
-                                continue;
-                            }
-
-                            var sb = new StringBuilder();
-                            foreach (var result in results)
-                            {
-                                sb.AppendLine(result);
-                            }
-
-                            results.Clear();
-
-                            count = 0;
-
-                            var now = DateTime.UtcNow;
-
-                            if (duration == new TimeSpan() || now.Subtract(start) < duration)
-                            {
-                                continue;
-                            }
-
-                            // Time elapsed
+                            // [DC] Streaming was cancelled out of band
                             EndStreaming(request);
                             return;
                         }
+
+                        if (readString.Equals(Environment.NewLine))
+                        {
+                            // Keep-Alive
+                            continue;
+                        }
+
+                        if (readString.Equals("<html>"))
+                        {
+                            // We're looking at a 401 or similar; construct error result?
+                            return;
+                        }
+
+                        results.Add(readString);
+
+                        count++;
+                        if (count < resultCount)
+                        {
+                            // Result buffer
+                            continue;
+                        }
+
+                        var sb = new StringBuilder();
+                        foreach (var result in results)
+                        {
+                            sb.AppendLine(result);
+                        }
+
+                        results.Clear();
+
+                        count = 0;
+
+                        var now = DateTime.UtcNow;
+
+                        if (duration == new TimeSpan() || now.Subtract(start) < duration)
+                        {
+                            continue;
+                        }
+
+                        // Time elapsed
+                        return;
                     }
-                    catch (Exception)
-                    {
-                        EndStreaming(request);
-                    }
-                    // Stream dried up
                 }
-                EndStreaming(request);
+                catch
+                {
+                }
+                finally
+                {
+                    EndStreaming(request);
+                }
             }
         }
 
