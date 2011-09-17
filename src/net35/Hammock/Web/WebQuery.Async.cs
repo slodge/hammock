@@ -514,7 +514,6 @@ namespace Hammock.Web
                         if (!_isStreaming)
                         {
                             // [DC] Streaming was cancelled out of band
-                            EndStreaming(request);
                             return;
                         }
 
