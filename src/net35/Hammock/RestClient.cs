@@ -2505,6 +2505,7 @@ namespace Hammock
 #if !SILVERLIGHT && !NETCF
                     if(result.WebResponse is HttpWebResponse)
                     {
+#pragma warning disable 618
                         var cookies = (result.WebResponse as HttpWebResponse).Cookies;
                         if(cookies != null)
                         {
@@ -2513,6 +2514,8 @@ namespace Hammock
                                 response.Cookies.Add(cookie.Name, cookie.Value);
                             }
                         }
+#pragma warning restore 618
+
                     }
 #endif
 
@@ -2591,10 +2594,13 @@ namespace Hammock
         {
             // Fill query collections with found value pairs
             CoalesceWebPairsIntoCollection(query.Parameters, Parameters, request.Parameters);
+#pragma warning disable 618
             CoalesceWebPairsIntoCollection(query.Cookies, Cookies, request.Cookies);
-            
+#pragma warning restore 618
+
             query.Headers.AddRange(Headers);
             query.Headers.AddRange(request.Headers);
+            query.CookieContainer = this.CookieContainer;
 
             // [DC]: These properties are trumped by request over client
             query.UserAgent = GetUserAgent(request);

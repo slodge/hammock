@@ -35,7 +35,9 @@ namespace Hammock.Web
         public virtual string UserAgent { get; protected internal set; }
         public virtual WebHeaderCollection Headers { get; protected set; }
         public virtual WebParameterCollection Parameters { get; protected set; }
+        [Obsolete("Use CookieContainer instead.")]
         public virtual WebParameterCollection Cookies { get; protected set; }
+        public virtual CookieContainer CookieContainer { get; set; }
 
         private WebEntity _entity;
         protected internal virtual WebEntity Entity
@@ -121,7 +123,9 @@ namespace Hammock.Web
 
         private void SetQueryMeta(IWebQueryInfo info)
         {
+#pragma warning disable 618
             Cookies = new WebParameterCollection(0);
+#pragma warning restore 618
 
             if(info == null)
             {
@@ -511,21 +515,30 @@ namespace Hammock.Web
         private void AppendCookies(HttpWebRequest request)
         {
 #if !NETCF
-            request.CookieContainer = new CookieContainer();
-
-            foreach(var cookie in Cookies.OfType<HttpCookieParameter>())
+            if (this.CookieContainer != null)
             {
-                var value = new Cookie(cookie.Name, cookie.Value);
-                if(cookie.Domain != null)
+                request.CookieContainer = this.CookieContainer;
+            }
+            else
+            {
+                request.CookieContainer = new CookieContainer();
+
+#pragma warning disable 618
+                foreach (var cookie in Cookies.OfType<HttpCookieParameter>())
+#pragma warning restore 618
                 {
-                    request.CookieContainer.Add(cookie.Domain, value);        
-                }
+                    var value = new Cookie(cookie.Name, cookie.Value);
+                    if (cookie.Domain != null)
+                    {
+                        request.CookieContainer.Add(cookie.Domain, value);
+                    }
 #if !SILVERLIGHT
-                else
-                {
-                    request.CookieContainer.Add(value);
-                }
+                    else
+                    {
+                        request.CookieContainer.Add(value);
+                    }
 #endif
+                }
             }
 #endif
         }
