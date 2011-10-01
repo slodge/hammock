@@ -2436,6 +2436,7 @@ namespace Hammock
             var result = query.Result;
             var response = BuildBaseResponse(result);
 
+            response.CookieContainer = request.CookieContainer;
             DeserializeEntityBody(request, response);
             response.Tag = GetTag(request);
 
@@ -2448,6 +2449,7 @@ namespace Hammock
             var result = query.Result;
             var response = BuildBaseResponse<T>(result);
 
+            response.CookieContainer = request.CookieContainer;
             DeserializeEntityBody(request, response);
             response.Tag = GetTag(request);
 
@@ -2505,6 +2507,7 @@ namespace Hammock
 #if !SILVERLIGHT && !NETCF
                     if(result.WebResponse is HttpWebResponse)
                     {
+
 #pragma warning disable 618
                         var cookies = (result.WebResponse as HttpWebResponse).Cookies;
                         if(cookies != null)
@@ -2600,7 +2603,11 @@ namespace Hammock
 
             query.Headers.AddRange(Headers);
             query.Headers.AddRange(request.Headers);
-            query.CookieContainer = this.CookieContainer;
+            // If CookieContainer is set on request object then use that, else use the CookieContainer set on the Client.
+            if (request.CookieContainer == null)
+                request.CookieContainer = this.CookieContainer; 
+
+            query.CookieContainer = request.CookieContainer;
 
             // [DC]: These properties are trumped by request over client
             query.UserAgent = GetUserAgent(request);
