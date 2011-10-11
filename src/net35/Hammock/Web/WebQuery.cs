@@ -159,7 +159,6 @@ namespace Hammock.Web
         private void SetResponseResults(WebQueryResponseEventArgs e)
         {
             Result.ContentStream = e.Response;
-            Result.ResponseDate = DateTime.UtcNow;
             Result.RequestHttpMethod = Method.ToUpper();
             Result.IsMock = WebResponse is MockHttpWebResponse;
             Result.TimedOut = TimedOut;
@@ -189,6 +188,10 @@ namespace Hammock.Web
             Result.ResponseLength = contentLength;
             Result.ResponseUri = responseUri;
             Result.Exception = e.Exception;
+            if (WebResponse != null)
+            {
+                Result.ResponseDate = DateTime.UtcNow;
+            }
         }
 
 #if !MonoTouch
@@ -779,29 +782,23 @@ namespace Hammock.Web
 
         protected void HandleWebException(WebException exception)
         {
-            if (!(exception.Response is HttpWebResponse))
+            Stream stream = null;
+            if (exception.Response is HttpWebResponse)
             {
-                return;
-            }
-
-            var response = exception.Response;
+                var response = exception.Response;
 #if SILVERLIGHT
-            if (DecompressionMethods == Silverlight.Compat.DecompressionMethods.GZip ||
-                DecompressionMethods == Silverlight.Compat.DecompressionMethods.Deflate ||
-                DecompressionMethods == (Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate)
-                )
-            {
-                response = new GzipHttpWebResponse((HttpWebResponse)response);
-            }
+                if (DecompressionMethods == Silverlight.Compat.DecompressionMethods.GZip ||
+                    DecompressionMethods == Silverlight.Compat.DecompressionMethods.Deflate ||
+                    DecompressionMethods == (Silverlight.Compat.DecompressionMethods.GZip | Silverlight.Compat.DecompressionMethods.Deflate)
+                    )
+                {
+                    response = new GzipHttpWebResponse((HttpWebResponse)response);
+                }
 #endif
-            WebResponse = response;
-            var stream = WebResponse.GetResponseStream();
-
-            if (stream == null)
-            {
-                return;
+                WebResponse = response;
+                stream = WebResponse.GetResponseStream();
             }
-
+            
             var args = new WebQueryResponseEventArgs(stream, exception);
             OnQueryResponse(args);
         }
