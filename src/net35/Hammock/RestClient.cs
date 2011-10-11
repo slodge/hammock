@@ -528,15 +528,20 @@ namespace Hammock
             return request.DecompressionMethods ?? DecompressionMethods;
         }
 
-        private WebMethod GetWebMethod(RestBase request)
+        private WebMethod GetWebMethod(RestRequest request)
         {
-            var method = !request.Method.HasValue
-                             ? !Method.HasValue
-                                   ? WebMethod.Get
-                                   : Method.Value
-                             : request.Method.Value;
-
-            return method;
+            if (request.Method.HasValue)
+            {
+                // Request settings take precedence over all.
+                return request.Method.Value;
+            }
+            if (Method.HasValue)
+            {
+                // The request does not specify the method - take the default specified on the client.
+                // Except, when the default is other than Post or Put and the request has an entity, in which case return the Post method.
+                return (request.Entity == null || Method.Value == WebMethod.Put || Method.Value == WebMethod.Post) ? Method.Value : WebMethod.Post;
+            }
+            return request.Entity == null ? WebMethod.Get : WebMethod.Post;
         }
 
         private byte[] GetPostContent(RestBase request)
@@ -2671,7 +2676,7 @@ namespace Hammock
             return entity;
         }
 
-        public WebQuery GetQueryFor(RestBase request, Uri uri)
+        public WebQuery GetQueryFor(RestRequest request, Uri uri)
         {
             var method = GetWebMethod(request);
             var credentials = GetWebCredentials(request);
