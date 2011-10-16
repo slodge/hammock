@@ -670,7 +670,7 @@ namespace Hammock
 
         public virtual void BeginRequest<T>(RestRequest request, RestCallback<T> callback, object userState)
         {
-            BeginRequestImpl(request, callback, null, null, false /* isInternal */, null);
+            BeginRequestImpl(request, callback, null, null, false /* isInternal */, userState);
         }
 
         public virtual void BeginRequest()
