@@ -2598,9 +2598,6 @@ namespace Hammock
             CoalesceWebPairsIntoCollection(query.Parameters, Parameters, request.Parameters);
             CoalesceWebPairsIntoCollection(query.Cookies, Cookies, request.Cookies);
             
-            query.Headers.AddRange(Headers);
-            query.Headers.AddRange(request.Headers);
-
             // [DC]: These properties are trumped by request over client
             query.UserAgent = GetUserAgent(request);
             query.Method = GetWebMethod(request);
@@ -2613,7 +2610,12 @@ namespace Hammock
 #if !SILVERLIGHT
             query.FollowRedirects = GetFollowRedirects(request);
 #endif
-            SerializeEntityBody(query, request);
+            query.Entity = SerializeEntityBody(request);
+
+            // [MK]: Serializer may modify the request headers, because they are part of the HTTP payload. Hence, move
+            // the header population after the entity body is serialized.
+            query.Headers.AddRange(Headers);
+            query.Headers.AddRange(request.Headers);
         }
 
         // [DC]: Trump duplicates by request over client over info values
@@ -2630,23 +2632,23 @@ namespace Hammock
             }
         }
 
-        private void SerializeEntityBody(WebQuery query, RestRequest request)
+        private WebEntity SerializeEntityBody(RestRequest request)
         {
             var serializer = GetSerializer(request);
             if (serializer == null)
             {
                 // No suitable serializer for entity
-                return;
+                return null;
             }
 
             if (request.Entity == null || request.RequestEntityType == null)
             {
                 // Not enough information to serialize
-                return;
+                return null;
             }
 
             var entityBody = serializer.Serialize(request.Entity, request.RequestEntityType);
-            query.Entity = !entityBody.IsNullOrBlank()
+            return !entityBody.IsNullOrBlank()
                                ? new WebEntity
                                      {
                                          Content = entityBody,
