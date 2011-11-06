@@ -2639,9 +2639,12 @@ namespace Hammock
         {
             var parameters = new WebPairCollection(values.SelectMany(value => value));
 
+            // [NvE] second facet not added due to if(target[pair.Name] == null); get names upfront
+            string[] exists = target.Names.ToArray();
+
             foreach (var pair in parameters)
             {
-                if(target[pair.Name] == null)
+                if (!exists.Contains(pair.Name))
                 {
                     target.Add(pair);
                 }
