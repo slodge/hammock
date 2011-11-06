@@ -166,6 +166,7 @@ namespace Hammock
         public virtual IWebQueryInfo Info { get; set; }
         public virtual string Path { get; set; }
         public virtual object Tag { get; set; }
+        public virtual CookieContainer CookieContainer { get; set; }
 
         public virtual void AddHeader(string name, string value)
         {
@@ -177,11 +178,13 @@ namespace Hammock
             Parameters.Add(name, value);
         }
 
+        [Obsolete("Use CookieContainer instead.")]
         public virtual void AddCookie(string name, string value)
         {
             Cookies.Add(new HttpCookieParameter(name, value));
         }
 
+        [Obsolete("Use CookieContainer instead.")]
         public virtual void AddCookie(Uri domain, string name, string value)
         {
             Cookies.Add(new HttpCookieParameter(name, value) { Domain = domain });
