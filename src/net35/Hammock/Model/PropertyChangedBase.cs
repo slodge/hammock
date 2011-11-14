@@ -7,7 +7,7 @@ namespace Hammock.Model
 #if !SILVERLIGHT
     [Serializable]
 #endif
-#if !Smartphone && !NET20 && !ClientProfiles && !NETCF
+#if !Smartphone && !NET20 && !ClientProfiles && !NETCF  && !MonoDroid
     [DataContract]
 #endif
   public class PropertyChangedBase : INotifyPropertyChanged

@@ -179,7 +179,7 @@ namespace Hammock.Web
                 out contentType, out contentLength, out responseUri
                 );
 			
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
             TraceResponse(
                 responseUri, version, headers, statusCode, statusDescription
                 );
@@ -198,7 +198,7 @@ namespace Hammock.Web
             }
         }
 
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
 		[Conditional("TRACE")]
         private void TraceResponse(Uri uri, string version, System.Net.WebHeaderCollection headers, int statusCode, string statusDescription)
         {
@@ -289,7 +289,7 @@ namespace Hammock.Web
 
             HandleRequestMeta(request);
 			
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
             TraceRequest(request);
 #endif
             content = BuildPostOrPutContent(request, post);
@@ -329,7 +329,7 @@ namespace Hammock.Web
 
             HandleRequestMeta(request);
 			
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
             TraceRequest(request);
 #endif
 
@@ -379,7 +379,7 @@ namespace Hammock.Web
 
             HandleRequestMeta(request);
 			
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
             TraceRequest(request);
 #endif
             return request;
@@ -601,7 +601,7 @@ namespace Hammock.Web
             }
         }
 		
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
         [Conditional("TRACE")]
         private void TraceHeaders(WebRequest request)
         {
@@ -1039,14 +1039,14 @@ namespace Hammock.Web
             
             HandleRequestMeta(request);
             
-#if !MonoTouch
+#if !MonoTouch && !MonoDroid
 			TraceRequest(request);
 #endif
 			
             return request;
         }
 		
-#if !MonoTouch
+#if !MonoTouch  && !MonoDroid
         [Conditional("TRACE")]
         protected void TraceRequest(WebRequest request)
         {
